@@ -7,6 +7,8 @@ import java.util.List;
  */
 public class Train {
     private List<Carriage> train;
+    private Driver driver;
+    private int trainId;
 
 //    public Train (List<Carriage> train){
 //        this.train = train;
@@ -48,5 +50,27 @@ public class Train {
                 return null;
             }
         }
+    }
+
+    public void setDriver(Driver driver){
+        this.driver = driver;
+    }
+
+    public Driver getDriver(){ return driver; }
+
+    public int getTrainId() {
+        return trainId;
+    }
+
+    public void setTrainId(int trainId) {
+        this.trainId = trainId;
+    }
+
+    @Override
+    public String toString() {
+        return "Train{" +
+                "train=" + train +
+                ", driver=" + driver +
+                '}';
     }
 }

@@ -26,6 +26,10 @@ public class Carriage implements Cloneable {
         return type;
     }
 
-
-
+    @Override
+    public String toString() {
+        return "Carriage{" +
+                "type=" + type +
+                '}';
+    }
 }
