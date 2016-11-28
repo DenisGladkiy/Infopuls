@@ -1,5 +1,6 @@
 package ORMLite_test;
 
+import JDBC_test.Customer;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -10,6 +11,9 @@ import java.util.Date;
  */
 @DatabaseTable(tableName = "payments")
 public class Payment {
+
+    @DatabaseField(canBeNull = false, foreign = true, columnName = "customerNumber")
+    private Customer customer;
 
     @DatabaseField(canBeNull = false,useGetSet = true)
     private int customerNumber;
@@ -66,4 +70,5 @@ public class Payment {
     public void setAmount(double amount) {
         this.amount = amount;
     }
+
 }

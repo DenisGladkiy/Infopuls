@@ -1,33 +1,82 @@
 package Metro;
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Денис on 10/1/16.
  */
-public class Train {
-    private List<Carriage> train;
-    private Driver driver;
-    private int trainId;
+@DatabaseTable(tableName = "train")
+public class Train extends SuperClass {
 
-//    public Train (List<Carriage> train){
-//        this.train = train;
-//    }
+    int[] experience = {-2,-1,0,1,2};
+
+    @DatabaseField(generatedId = true)
+    private int train_id;
+
+//    @ForeignCollectionField()
+    private Collection<Carriage> train;
+
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+    private Carriage carr1;
+
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+    private Carriage carr2;
+
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+    private Carriage carr3;
+
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+    private Carriage carr4;
+
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+    private Carriage carr5;
+
+    @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
+    private Driver driver;
+
+
+    public Train(){}
 
     private Train(Builder builder){
-        this.train = builder.train;
+        carr1 = builder.train.get(0);
+        carr2 = builder.train.get(1);
+        carr3 = builder.train.get(2);
+        carr4 = builder.train.get(3);
+        carr5 = builder.train.get(4);
+        //train = builder.train;
     }
 
-    public void run(){}
+    public void run(){
+        Random rnd = new Random();
+        int exp = experience[rnd.nextInt(4)];
+        int currentExp = driver.getExperience();
+        driver.setExperience(currentExp + exp);
+    }
 
     public void stop(){}
 
-    public List<Carriage> getTrain() {
+    public Collection<Carriage> getTrain() {
+        List<Carriage> train = new ArrayList<>();
+        train.add(0, carr1);
+        train.add(1, carr2);
+        train.add(2, carr3);
+        train.add(3, carr4);
+        train.add(4, carr5);
         return train;
     }
 
     public void setTrain(List<Carriage> train) {
-        this.train = train;
+        carr1 = train.get(0);
+        carr2 = train.get(1);
+        carr3 = train.get(2);
+        carr4 = train.get(3);
+        carr5 = train.get(4);
     }
 
     public static class Builder{
@@ -58,19 +107,16 @@ public class Train {
 
     public Driver getDriver(){ return driver; }
 
-    public int getTrainId() {
-        return trainId;
-    }
-
-    public void setTrainId(int trainId) {
-        this.trainId = trainId;
-    }
-
     @Override
     public String toString() {
         return "Train{" +
-                "train=" + train +
+                "train_id=" + train_id +
+                ", carr1=" + carr1 +
+                ", carr2=" + carr2 +
+                ", carr3=" + carr3 +
+                ", carr4=" + carr4 +
+                ", carr5=" + carr5 +
                 ", driver=" + driver +
-                '}';
+                '}' + "\n";
     }
 }
