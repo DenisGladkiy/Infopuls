@@ -4,8 +4,9 @@ import Metro.DataBase.DbConnector;
 import Metro.DataBase.DbCreator;
 import Metro.DataBase.ObjectWriter;
 import Metro.DataBase.TableCreator;
+import Metro.Utils.TrainFactory;
+import Metro.Utils.Utility;
 
-import java.io.*;
 import java.sql.Connection;
 import java.util.*;
 
@@ -122,7 +123,7 @@ public class Metro {
 
     public void receivePassengers(){
         passengers = new HashSet<>();
-        for(int i = 0; i < 100; i++){
+        for(int i = 0; i < 200; i++){
             passengers.add(new Passenger(i));
         }
     }
@@ -146,10 +147,11 @@ public class Metro {
     }
 
     private void distributePassengers(){
+        Utility utility = new Utility();
         Random rnd = new Random();
         for(Line line : lines){
             for(Station station : line.getStations()){
-                station.setPassengers(getSubsetOfPassengers(rnd.nextInt(10)));
+                station.setPassengers(utility.getSubsetOfPassengers(passengers, rnd.nextInt(16)));
             }
         }
     }
@@ -195,37 +197,14 @@ public class Metro {
         }
     }
 
-    private Set<Passenger> getSubsetOfPassengers(int number){
-        Set<Passenger> pass = new HashSet<>();
-        Passenger tempPass;
-        for(int i = 0; i < number; i++){
-            tempPass = passengers.iterator().next();
-            pass.add(tempPass);
-            passengers.remove(tempPass);
-        }
-        return pass;
-    }
-
-//    private void printTrains(List<Train> t){
-//        try(FileOutputStream outputStream = new FileOutputStream(new File("Metro.dat"));
-//            OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream);
-//            BufferedWriter writer = new BufferedWriter(streamWriter);) {
-//            for(Train train : t){
-//                printTrain(writer, train);
-//            }
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } ;
+//    private Set<Passenger> getSubsetOfPassengers(Set<Passenger> passengers, int number){
+//        Set<Passenger> pass = new HashSet<>();
+//        Passenger tempPass;
+//        for(int i = 0; i < number; i++){
+//            tempPass = passengers.iterator().next();
+//            pass.add(tempPass);
+//            passengers.remove(tempPass);
+//        }
+//        return pass;
 //    }
-
-    //    private void printTrain(BufferedWriter bw, Train t) throws IOException {
-//        bw.write(t.getTrain().toString() + " | " + t.getDriver());
-//        bw.newLine();
-//    }
-//
-
-
-
 }

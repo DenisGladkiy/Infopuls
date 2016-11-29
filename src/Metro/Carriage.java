@@ -3,6 +3,7 @@ package Metro;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -23,7 +24,7 @@ public class Carriage extends SuperClass implements Cloneable {
     @DatabaseField(canBeNull = false,useGetSet = true)
     private CarriageType type;
 
-    private Set<Passenger> passengers;
+    private Set<Passenger> passengers = new HashSet<>();
 
     public Carriage(){}
 
@@ -103,6 +104,6 @@ public class Carriage extends SuperClass implements Cloneable {
 
     @Override
     public String toString() {
-        return type.toString();
+        return type.toString() + " / " + passengers.size();
     }
 }

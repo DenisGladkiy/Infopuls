@@ -1,12 +1,10 @@
 package Metro;
 
+import Metro.Utils.Utility;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by Денис on 10/1/16.
@@ -60,8 +58,31 @@ public class Train extends SuperClass {
     }
 
     public void stop(Station station){
+        Utility utility = new Utility();
         if(station != null) {
-            System.out.println(station.getName() + "  " + driver);
+            Collection<Carriage> carriages = getTrain();
+            Set<Passenger> stationPassengers = station.getPassengers();
+            System.out.println(station.getName() + "Station pass before = " + stationPassengers.size());
+            Set<Passenger> trainPassengers = new HashSet<>();
+            int number = stationPassengers.size() / carriages.size();
+            if(number == 0){
+                number = 1;
+            }
+            for(Carriage car : carriages){
+                trainPassengers.addAll(car.getPassengers());
+                if(stationPassengers.size() > 0){
+                    if(stationPassengers.size() == 2){
+                        car.setPassengers(utility.getSubsetOfPassengers(stationPassengers, 2));
+                    }else {
+                        car.setPassengers(utility.getSubsetOfPassengers(stationPassengers, number));
+                    }
+                }else{
+                    break;
+                }
+            }
+            stationPassengers.addAll(trainPassengers);
+            System.out.println("Station pass after = " + stationPassengers.size());
+            System.out.println(station.getName() + "  " + this.toString());
         }else{
             System.out.println("no station");
         }
