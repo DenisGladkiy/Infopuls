@@ -14,7 +14,6 @@ import java.util.*;
  */
 public class Metro {
 
-    //Depot depot;
     private Queue<Driver> drivers;
     private List<Train> trains;
     private Set<Passenger> passengers;
@@ -30,22 +29,19 @@ public class Metro {
         Metro metro = new Metro();
         metro.arrangeLines();
         System.out.println(metro.lines);
-        Depot depot = metro.fillDepot(10, 50);
+        Depot depot = metro.fillDepot(12, 50);
         metro.drivers = metro.hireDrivers();
-        metro.trains = metro.makeTrains(5, depot);
+        metro.trains = metro.makeTrains(6, depot);
         System.out.println(metro.trains);
         metro.receivePassengers();
         System.out.println("Passengers " + metro.passengers.size());
         metro.distributePassengers();
-        System.out.println("Passengers " + metro.passengers.size());
+        metro.distributeTrains();
+        System.out.println("Trains  " + metro.trains);
         System.out.println("Lines " + metro.lines);
-        //metro.printTrains(metro.trains);
         for(int i = 10; i > 0; i--){
-            metro.runTrains();
-            metro.swapDrivers();
-            System.out.println(metro.trains);
+            metro.move();
         }
-
     }
 
     private Depot fillDepot(int headCarrs, int midCarrs){
@@ -80,9 +76,12 @@ public class Metro {
         driver = new Driver("Homer");
         driverWriter.writeObject(driver);
         drivers.add(driver);
-        //driver = new Driver("Bill");
-        //driverWriter.writeObject(driver);
-        //drivers.add(driver);
+        driver = new Driver("Bill");
+        driverWriter.writeObject(driver);
+        drivers.add(driver);
+        driver = new Driver("John");
+        driverWriter.writeObject(driver);
+        drivers.add(driver);
         return drivers;
     }
 
@@ -130,14 +129,15 @@ public class Metro {
 
     public void arrangeLines(){
         lines = new ArrayList<>();
-        String[] names = {"First", "Second", "Third", "Forth", "Fifth", "Sixth", "Seventh", "Eighth", "Ninth"};
-        List<String> stationNames = new ArrayList(Arrays.asList(names));
-        lines.add(makeLine("Red", stationNames.subList(0,3)));
-        lines.add(makeLine("Blue", stationNames.subList(3,6)));
-        lines.add(makeLine("Green", stationNames.subList(6,9)));
+        String[] names1 = {"First", "Second", "Third", "Forth"};
+        String[] names2 = {"Fifth", "Sixth", "Seventh", "Eighth"};
+        String[] names3 = {"Ninth", "Tenth", "Eleventh", "Twelfth"};
+        lines.add(makeLine("Red", Arrays.asList(names1)));
+        lines.add(makeLine("Blue", Arrays.asList(names2)));
+        lines.add(makeLine("Green", Arrays.asList(names3)));
     }
 
-    public Line makeLine(String lineName, List<String> names){
+    private Line makeLine(String lineName, List<String> names){
         List<Station> stations = new ArrayList<>();
         for(String s : names){
             stations.add(new Station(s));
@@ -145,11 +145,52 @@ public class Metro {
         return new Line(lineName, stations);
     }
 
-    public void distributePassengers(){
+    private void distributePassengers(){
         Random rnd = new Random();
         for(Line line : lines){
             for(Station station : line.getStations()){
-                station.setPassengers(getSubsetOfPassengers(rnd.nextInt(15)));
+                station.setPassengers(getSubsetOfPassengers(rnd.nextInt(10)));
+            }
+        }
+    }
+
+    private void distributeTrains(){
+        int trainNumber = trains.size();
+        int lineNumber = lines.size();
+        int trainPerLine = trainNumber / lineNumber;
+
+        for(Line line : lines){
+            List<Train> trainsForLine = new ArrayList<>();
+            for(int i = 0;i < trainPerLine;i++){
+                if(trains.size() == 1){
+                    trainsForLine.add(trains.remove(0));
+                }else {
+                    trainsForLine.add(trains.remove(i));
+                }
+            }
+            line.setTrains(trainsForLine);
+        }
+    }
+
+    private void move(){
+        for(Line line : lines){
+            List<Train> trains = line.getTrains();
+            List<Station> stations = line.getStations();
+            int iterations = trains.size() + trains.size();
+            for(int i = 0; i < iterations; i++) {
+                int j = i;
+                for (Train train : trains) {
+                    train.run();
+                    if(j < 0){
+                        train.stop(null);
+                    }else {
+                        train.stop(stations.get(j));
+                    }
+                    train.run();
+                    j--;
+                }
+                //Collections.rotate(stations,-1);
+                System.out.println("\n");
             }
         }
     }

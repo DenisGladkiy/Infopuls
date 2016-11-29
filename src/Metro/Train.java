@@ -20,7 +20,7 @@ public class Train extends SuperClass {
     private int train_id;
 
 //    @ForeignCollectionField()
-    private Collection<Carriage> train;
+//    private Collection<Carriage> train;
 
     @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     private Carriage carr1;
@@ -59,7 +59,13 @@ public class Train extends SuperClass {
         driver.setExperience(currentExp + exp);
     }
 
-    public void stop(){}
+    public void stop(Station station){
+        if(station != null) {
+            System.out.println(station.getName() + "  " + driver);
+        }else{
+            System.out.println("no station");
+        }
+    }
 
     public Collection<Carriage> getTrain() {
         List<Carriage> train = new ArrayList<>();

@@ -28,11 +28,16 @@ public class Line extends SuperClass {
         this.stations = stations;
     }
 
+    public List<Train> getTrains() { return trains; }
+
+    public void setTrains(List<Train> trains) { this.trains = trains; }
+
     @Override
     public String toString() {
         return "Line{" +
                 "name='" + name + '\'' +
-                ", stations=" + stations +
+                ", stations=" + stations + "\n" +
+                ", trains=" + trains +
                 '}';
     }
 }

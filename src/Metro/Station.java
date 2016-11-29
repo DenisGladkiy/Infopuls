@@ -27,6 +27,10 @@ public class Station extends SuperClass {
         this.passengers = passengers;
     }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
         return "Station{" +
