@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tns:tarifs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:tns="http://www.univer.com/tarifs"
+            xsi:schemaLocation="http://www.univer.com/tarifs tarifs.xsd">
+
+    <tarif>
+        <name>FreeWorld</name>
+        <operator_name>Life</operator_name>
+        <payroll>50</payroll>
+        <call_prices>
+            <inside>0</inside>
+            <outside>1</outside>
+            <landline>2</landline>
+        </call_prices>
+        <sms_price>0.5</sms_price>
+        <parameters>
+            <favorite_numbers>3</favorite_numbers>
+            <count_from>12</count_from>
+            <activation_price>15</activation_price>
+        </parameters>
+    </tarif>
+    <tarif>
+        <name>Family</name>
+        <operator_name>Vodafone</operator_name>
+        <payroll>40</payroll>
+        <call_prices>
+            <inside>0</inside>
+            <outside>1.5</outside>
+            <landline>1.5</landline>
+        </call_prices>
+        <sms_price>0.3</sms_price>
+        <parameters>
+            <favorite_numbers>5</favorite_numbers>
+            <count_from>12</count_from>
+            <activation_price>20</activation_price>
+        </parameters>
+    </tarif>
+    <tarif>
+        <name>Smart</name>
+        <operator_name>Kyivstar</operator_name>
+        <payroll>45</payroll>
+        <call_prices>
+            <inside>0.1</inside>
+            <outside>1</outside>
+            <landline>1.5</landline>
+        </call_prices>
+        <sms_price>0.05</sms_price>
+        <parameters>
+            <favorite_numbers>2</favorite_numbers>
+            <count_from>60</count_from>
+            <activation_price>10</activation_price>
+        </parameters>
+    </tarif>
+</tns:tarifs>

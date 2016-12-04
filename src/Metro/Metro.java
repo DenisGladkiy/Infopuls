@@ -29,19 +29,18 @@ public class Metro {
         tCreator.createTables();
         Metro metro = new Metro();
         metro.arrangeLines();
-        System.out.println(metro.lines);
         Depot depot = metro.fillDepot(12, 50);
         metro.drivers = metro.hireDrivers();
         metro.trains = metro.makeTrains(6, depot);
-        System.out.println(metro.trains);
         metro.receivePassengers();
-        System.out.println("Passengers " + metro.passengers.size());
         metro.distributePassengers();
         metro.distributeTrains();
-        System.out.println("Trains  " + metro.trains);
-        System.out.println("Lines " + metro.lines);
         for(int i = 10; i > 0; i--){
             metro.move();
+        }
+        for(Line line : metro.lines){
+            System.out.println(line.getName() + "  " + line.getStations().get(0).getPassengers() + "\n");
+            System.out.println(line.getName() + "  " + line.getStations().get(3).getPassengers());
         }
     }
 
@@ -92,7 +91,6 @@ public class Metro {
         TrainFactory trainFactory = new TrainFactory();
         for(int i = 0; i < trainNumber; i++){
             Train train = trainFactory.makeTrain(depot);
-            //train.setDriver(drivers.get(i));
             if(!drivers.isEmpty()){
                 train.setDriver(drivers.remove());
                 trainWriter.writeObject(train);
@@ -123,7 +121,7 @@ public class Metro {
 
     public void receivePassengers(){
         passengers = new HashSet<>();
-        for(int i = 0; i < 200; i++){
+        for(int i = 0; i < 500; i++){
             passengers.add(new Passenger(i));
         }
     }
@@ -151,7 +149,7 @@ public class Metro {
         Random rnd = new Random();
         for(Line line : lines){
             for(Station station : line.getStations()){
-                station.setPassengers(utility.getSubsetOfPassengers(passengers, rnd.nextInt(16)));
+                station.setPassengers(utility.getSubsetOfPassengers(passengers, rnd.nextInt(30)));
             }
         }
     }
@@ -191,20 +189,8 @@ public class Metro {
                     train.run();
                     j--;
                 }
-                //Collections.rotate(stations,-1);
                 System.out.println("\n");
             }
         }
     }
-
-//    private Set<Passenger> getSubsetOfPassengers(Set<Passenger> passengers, int number){
-//        Set<Passenger> pass = new HashSet<>();
-//        Passenger tempPass;
-//        for(int i = 0; i < number; i++){
-//            tempPass = passengers.iterator().next();
-//            pass.add(tempPass);
-//            passengers.remove(tempPass);
-//        }
-//        return pass;
-//    }
 }

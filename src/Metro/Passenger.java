@@ -12,4 +12,9 @@ public class Passenger extends SuperClass {
     public Passenger(int passengerId) {
         this.passengerId = passengerId;
     }
+
+    @Override
+    public String toString() {
+        return "passengerId=" + passengerId;
+    }
 }

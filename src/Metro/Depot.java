@@ -24,7 +24,7 @@ public class Depot extends SuperClass {
         objectWriter = new ObjectWriter<>(Carriage.class , Integer.class);
         List<Carriage> carrs = new ArrayList<>();
         for(int i = 0; i < number; i++){
-            Carriage newCarr = carr.clone();
+            Carriage newCarr = new Carriage(carr);
             carrs.add(newCarr);
             objectWriter.writeObject(newCarr);
         }

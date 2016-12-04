@@ -32,6 +32,10 @@ public class Line extends SuperClass {
 
     public void setTrains(List<Train> trains) { this.trains = trains; }
 
+    public String getName() {
+        return name;
+    }
+
     @Override
     public String toString() {
         return "Line{" +

@@ -52,29 +52,40 @@ public class Train extends SuperClass {
 
     public void run(){
         Random rnd = new Random();
-        int exp = experience[rnd.nextInt(4)];
+        int exp = experience[rnd.nextInt(5)];
         int currentExp = driver.getExperience();
         driver.setExperience(currentExp + exp);
     }
 
     public void stop(Station station){
+        Random random = new Random();
         Utility utility = new Utility();
+        Set<Passenger> carrPass = null;
+        int carrPassNumber;
         if(station != null) {
             Collection<Carriage> carriages = getTrain();
             Set<Passenger> stationPassengers = station.getPassengers();
+            Set<Passenger> redundantPass = null;
             System.out.println(station.getName() + "Station pass before = " + stationPassengers.size());
             Set<Passenger> trainPassengers = new HashSet<>();
-            int number = stationPassengers.size() / carriages.size();
+            int number = stationPassengers.size() / 5;
             if(number == 0){
                 number = 1;
             }
             for(Carriage car : carriages){
-                trainPassengers.addAll(car.getPassengers());
+                carrPass = car.getPassengers();
+                carrPassNumber = carrPass.size();
+                if(carrPassNumber > 0) {
+                    trainPassengers.addAll(utility.getSubsetOfPassengers(carrPass, random.nextInt(carrPassNumber + 1)));
+                }
                 if(stationPassengers.size() > 0){
                     if(stationPassengers.size() == 2){
-                        car.setPassengers(utility.getSubsetOfPassengers(stationPassengers, 2));
+                        redundantPass = car.addPassengers(utility.getSubsetOfPassengers(stationPassengers, 2));
+                        stationPassengers.addAll(redundantPass);
                     }else {
-                        car.setPassengers(utility.getSubsetOfPassengers(stationPassengers, number));
+                        int rand = random.nextInt(number + 1);
+                        redundantPass = car.addPassengers(utility.getSubsetOfPassengers(stationPassengers, rand));
+                        stationPassengers.addAll(redundantPass);
                     }
                 }else{
                     break;

@@ -28,6 +28,11 @@ public class Carriage extends SuperClass implements Cloneable {
 
     public Carriage(){}
 
+    public Carriage(Carriage origin){
+        type = origin.getType();
+        sitsNumber = origin.getSitsNumber();
+    }
+
     public Carriage(CarriageType type){
         this.type = type;
         if(type == CarriageType.HEAD){
@@ -37,8 +42,14 @@ public class Carriage extends SuperClass implements Cloneable {
         }
     }
 
-    public void addPassengers(Set<Passenger> p){
-        passengers.addAll(p);
+    public Set<Passenger> addPassengers(Set<Passenger> p){
+        int totalPass = passengers.size() + p.size();
+        if(totalPass > sitsNumber){
+            return p;
+        }else{
+            passengers.addAll(p);
+            return new HashSet<>();
+        }
     }
 
     public void removePassengers(int number){
@@ -52,15 +63,15 @@ public class Carriage extends SuperClass implements Cloneable {
         }
     }
 
-    public Carriage clone() {
-        Carriage car = null;
-        try {
-            car = (Carriage) super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
-        return car;
-    }
+//    public Carriage clone() {
+//        Carriage car = null;
+//        try {
+//            car = (Carriage) super.clone();
+//        } catch (CloneNotSupportedException e) {
+//            e.printStackTrace();
+//        }
+//        return car;
+//    }
 
     public int getId() {
         return id;

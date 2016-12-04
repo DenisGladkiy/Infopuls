@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+        targetNamespace="http://www.univer.com/tarifs"
+        xmlns:tns="http://www.univer.com/tarifs">
+    <element name="tarifs" type="tns:tarifs"/>
+
+    <complexType name="tarifs">
+        <sequence>
+            <element name="tarif" type="tns:tarif" maxOccurs="unbounded" minOccurs="0"/>
+        </sequence>
+    </complexType>
+    <complexType name="tarif">
+        <sequence>
+            <element name="name" type="string" maxOccurs="1" minOccurs="1"/>
+            <element name="operator_name" type="string" maxOccurs="1" minOccurs="1"/>
+            <element name="payroll" type="tns:payroll_limit" maxOccurs="1" minOccurs="1"/>
+            <element name="call_prices" type="tns:prices" maxOccurs="1" minOccurs="1"/>
+            <element name="sms_price" type="tns:prices_limits" maxOccurs="1" minOccurs="1"/>
+            <element name="parameters" type="tns:parameters" maxOccurs="1" minOccurs="1"/>
+        </sequence>
+    </complexType>
+    <complexType name="prices">
+        <sequence>
+            <element name="inside" type="tns:prices_limits" maxOccurs="1" minOccurs="0"/>
+            <element name="outside" type="tns:prices_limits" maxOccurs="1" minOccurs="0"/>
+            <element name="landline" type="tns:prices_limits" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+    <complexType name="parameters">
+        <sequence>
+            <element name="favorite_numbers" type="tns:favorite_numbers_limit" maxOccurs="1" minOccurs="0"/>
+            <element name="count_from" type="tns:count_type" maxOccurs="1" minOccurs="0"/>
+            <element name="activation_price" type="tns:prices_limits" maxOccurs="1" minOccurs="0"/>
+        </sequence>
+    </complexType>
+    <simpleType name="payroll_limit">
+        <restriction base="double">
+            <minInclusive value="0"/>
+            <maxInclusive value="1000"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="prices_limits">
+        <restriction base="double">
+            <minInclusive value="0"/>
+            <maxInclusive value="100"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="favorite_numbers_limit">
+        <restriction base="int">
+            <minInclusive value="0"/>
+            <maxInclusive value="10"/>
+        </restriction>
+    </simpleType>
+    <simpleType name="count_type">
+        <restriction base="int">
+            <enumeration value="12"></enumeration>
+            <enumeration value="60"></enumeration>
+        </restriction>
+    </simpleType>
+</schema>
