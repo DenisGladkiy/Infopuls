@@ -32,7 +32,7 @@ public class Tariffs {
     @Override
     public String toString() {
         return "Tariffs{" +
-                "tariffs=" + tariffs +
+                "\n" + tariffs +
                 '}';
     }
 }

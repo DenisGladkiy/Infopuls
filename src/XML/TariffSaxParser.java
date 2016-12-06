@@ -151,6 +151,7 @@ public class TariffSaxParser extends DefaultHandler {
             isLandline = false;
         }else if(isSmsPrice){
             tariff.setSms_price(getDouble(ch, start, length));
+            isSmsPrice = false;
         }else if(isFavoriteNumbers){
             parameters.setFavoriteNumbers(Integer.parseInt(new String(ch, start, length)));
             isFavoriteNumbers = false;
