@@ -42,6 +42,6 @@ public class Line extends SuperClass {
                 "name='" + name + '\'' +
                 ", stations=" + stations + "\n" +
                 ", trains=" + trains +
-                '}';
+                '}' + "\n";
     }
 }

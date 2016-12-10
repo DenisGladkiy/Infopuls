@@ -10,5 +10,15 @@
     <orderEntry type="library" name="mysql-connector-java-5.1.38-bin" level="project" />
     <orderEntry type="library" name="ormlite-core-5.0" level="project" />
     <orderEntry type="library" name="ormlite-jdbc-5.0" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/.idea/libraries/xmlpull-1.1.2.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="kxml2-2.3.0" level="project" />
   </component>
 </module>

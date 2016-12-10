@@ -145,15 +145,48 @@ public class Train extends SuperClass {
 
     public Driver getDriver(){ return driver; }
 
+    public int getTrainId(){
+        return train_id;
+    }
+
+    public int getTotalPassengers(){
+        int total = 0;
+        Collection<Carriage> carrs = getTrain();
+        for(Carriage c : carrs){
+            total += c.getPassCounter();
+        }
+        return total;
+    }
+
+    public Carriage getCarr1() {
+        return carr1;
+    }
+
+    public Carriage getCarr2() {
+        return carr2;
+    }
+
+    public Carriage getCarr3() {
+        return carr3;
+    }
+
+    public Carriage getCarr4() {
+        return carr4;
+    }
+
+    public Carriage getCarr5() {
+        return carr5;
+    }
+
     @Override
     public String toString() {
         return "Train{" +
-                "train_id=" + train_id +
-                ", carr1=" + carr1 +
-                ", carr2=" + carr2 +
-                ", carr3=" + carr3 +
-                ", carr4=" + carr4 +
-                ", carr5=" + carr5 +
+                "train_id=" + train_id + "\n" +
+                ", carr1=" + carr1 + "\n" +
+                ", carr2=" + carr2 + "\n" +
+                ", carr3=" + carr3 + "\n" +
+                ", carr4=" + carr4 + "\n" +
+                ", carr5=" + carr5 + "\n" +
                 ", driver=" + driver +
                 '}' + "\n";
     }

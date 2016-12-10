@@ -26,6 +26,8 @@ public class Carriage extends SuperClass implements Cloneable {
 
     private Set<Passenger> passengers = new HashSet<>();
 
+    private int passCounter = 0;
+
     public Carriage(){}
 
     public Carriage(Carriage origin){
@@ -48,6 +50,7 @@ public class Carriage extends SuperClass implements Cloneable {
             return p;
         }else{
             passengers.addAll(p);
+            passCounter += p.size();
             return new HashSet<>();
         }
     }
@@ -105,7 +108,11 @@ public class Carriage extends SuperClass implements Cloneable {
         this.passengers = passengers;
     }
 
-//    public Train getTrain() {
+    public int getPassCounter() {
+        return passCounter;
+    }
+
+    //    public Train getTrain() {
 //        return train;
 //    }
 //
@@ -115,6 +122,8 @@ public class Carriage extends SuperClass implements Cloneable {
 
     @Override
     public String toString() {
-        return type.toString() + " / " + passengers.size();
+        return type.toString() +
+                " / current pass = " + passengers.size() +
+                " / total pass = " + passCounter;
     }
 }

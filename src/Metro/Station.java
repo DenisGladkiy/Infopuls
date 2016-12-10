@@ -35,6 +35,6 @@ public class Station extends SuperClass {
     public String toString() {
         return "Station{" +
                 "name='" + name + '\'' + " " +
-                "passengers number " + passengers.size() + '}';
+                "passengers number " + passengers.size() + '}' + "\n";
     }
 }

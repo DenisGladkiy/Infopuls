@@ -4,6 +4,7 @@ import Metro.DataBase.DbConnector;
 import Metro.DataBase.DbCreator;
 import Metro.DataBase.ObjectWriter;
 import Metro.DataBase.TableCreator;
+import Metro.Utils.Reporter;
 import Metro.Utils.TrainFactory;
 import Metro.Utils.Utility;
 
@@ -38,10 +39,8 @@ public class Metro {
         for(int i = 10; i > 0; i--){
             metro.move();
         }
-        for(Line line : metro.lines){
-            System.out.println(line.getName() + "  " + line.getStations().get(0).getPassengers() + "\n");
-            System.out.println(line.getName() + "  " + line.getStations().get(3).getPassengers());
-        }
+        Reporter reporter = new Reporter(metro.lines);
+        reporter.report();
     }
 
     private Depot fillDepot(int headCarrs, int midCarrs){
