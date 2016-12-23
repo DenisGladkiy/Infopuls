@@ -4,21 +4,25 @@ import Metro.DataBase.DbConnector;
 import Metro.DataBase.DbCreator;
 import Metro.DataBase.ObjectWriter;
 import Metro.DataBase.TableCreator;
+import Metro.Utils.DriversContainer;
 import Metro.Utils.Reporter;
 import Metro.Utils.TrainFactory;
 import Metro.Utils.Utility;
 
 import java.sql.Connection;
 import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 /**
  * Created by Денис on 10/1/16.
  */
 public class Metro {
 
-    private Queue<Driver> drivers;
+    private List<Driver> drivers;
+    public static volatile BlockingQueue<Driver> reserveDrivers;
     private List<Train> trains;
-    private Set<Passenger> passengers;
+    private volatile List<Passenger> passengers;
     private List<Line> lines;
 
     public static void main(String[] args) {
@@ -31,14 +35,12 @@ public class Metro {
         Metro metro = new Metro();
         metro.arrangeLines();
         Depot depot = metro.fillDepot(12, 50);
-        metro.drivers = metro.hireDrivers();
+        metro.hireDrivers();
         metro.trains = metro.makeTrains(6, depot);
         metro.receivePassengers();
         metro.distributePassengers();
         metro.distributeTrains();
-        for(int i = 10; i > 0; i--){
-            metro.move();
-        }
+        metro.move();
         Reporter reporter = new Reporter(metro.lines);
         reporter.report();
     }
@@ -49,39 +51,10 @@ public class Metro {
         return depot;
     }
 
-    private Queue<Driver> hireDrivers(){
-        ObjectWriter<Driver, Integer> driverWriter = new ObjectWriter<>(Driver.class , Integer.class);
-        Comparator<Driver> comparator = new Comparator<Driver>() {
-            @Override
-            public int compare(Driver d1, Driver d2) {
-                if(d1.getExperience() > d2.getExperience()){
-                    return 1;
-                }else if(d1.getExperience() < d2.getExperience()){
-                    return -1;
-                }
-                return 0;
-            }
-        };
-        Queue<Driver> drivers = new PriorityQueue<>(comparator);
-        Driver driver = new Driver("Alex");
-        driverWriter.writeObject(driver);
-        drivers.add(driver);
-        driver = new Driver("Mike");
-        driverWriter.writeObject(driver);
-        drivers.add(driver);
-        driver = new Driver("Nike");
-        driverWriter.writeObject(driver);
-        drivers.add(driver);
-        driver = new Driver("Homer");
-        driverWriter.writeObject(driver);
-        drivers.add(driver);
-        driver = new Driver("Bill");
-        driverWriter.writeObject(driver);
-        drivers.add(driver);
-        driver = new Driver("John");
-        driverWriter.writeObject(driver);
-        drivers.add(driver);
-        return drivers;
+    private void hireDrivers(){
+        //ObjectWriter<Driver, Integer> driverWriter = new ObjectWriter<>(Driver.class , Integer.class);
+        DriversContainer container = new DriversContainer();
+        drivers = container.getDrivers();
     }
 
     private List<Train> makeTrains(int trainNumber, Depot depot){
@@ -91,38 +64,59 @@ public class Metro {
         for(int i = 0; i < trainNumber; i++){
             Train train = trainFactory.makeTrain(depot);
             if(!drivers.isEmpty()){
-                train.setDriver(drivers.remove());
+                train.setDriver(drivers.remove(0));
                 trainWriter.writeObject(train);
             }else{
                 train.setDriver(null);
             }
             trains.add(train);
         }
+        reserveDrivers();
         return trains;
     }
 
-    public void runTrains(){
-        for(Train tr : trains){
-            if(tr.getDriver() != null){
-                tr.run();
-                drivers.add(tr.getDriver());
-            }
-        }
-    }
-
-    public void swapDrivers(){
-        for(Train tr : trains){
-            if(!drivers.isEmpty()) {
-                tr.setDriver(drivers.remove());
+    public static void swapDrivers(Train train) throws InterruptedException {
+        synchronized (reserveDrivers){
+            if(reserveDrivers.isEmpty()){
+                reserveDrivers.add(train.getDriver());
+                reserveDrivers.notifyAll();
+                while(reserveDrivers.size() < 2){
+                    reserveDrivers.wait();
+                }
+                System.out.println("res driver 1 " + reserveDrivers);
+                train.setDriver(reserveDrivers.take());
+            }else {
+                reserveDrivers.add(train.getDriver());
+                reserveDrivers.notifyAll();
+                System.out.println("res driver 2 " + reserveDrivers);
+                Driver d = reserveDrivers.take();
+                train.setDriver(d);
             }
         }
     }
 
     public void receivePassengers(){
-        passengers = new HashSet<>();
-        for(int i = 0; i < 500; i++){
-            passengers.add(new Passenger(i));
-        }
+        //List<Passenger> passengersList = new ArrayList<>();
+        passengers = new ArrayList<>();
+        new Thread(new Runnable() {
+            int i = 0;
+            @Override
+            public void run() {
+                while(i < 200){
+                    i++;
+                    synchronized (passengers) {
+                        passengers.add(new Passenger(i));
+                        passengers.notifyAll();
+                    }
+                    //System.out.println(i);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
     }
 
     public void arrangeLines(){
@@ -144,11 +138,10 @@ public class Metro {
     }
 
     private void distributePassengers(){
-        Utility utility = new Utility();
-        Random rnd = new Random();
         for(Line line : lines){
             for(Station station : line.getStations()){
-                station.setPassengers(utility.getSubsetOfPassengers(passengers, rnd.nextInt(30)));
+                Escalator escalator = new Escalator(passengers, station.getPassengers());
+                escalator.start();
             }
         }
     }
@@ -157,39 +150,53 @@ public class Metro {
         int trainNumber = trains.size();
         int lineNumber = lines.size();
         int trainPerLine = trainNumber / lineNumber;
-
-        for(Line line : lines){
-            List<Train> trainsForLine = new ArrayList<>();
-            for(int i = 0;i < trainPerLine;i++){
-                if(trains.size() == 1){
-                    trainsForLine.add(trains.remove(0));
-                }else {
-                    trainsForLine.add(trains.remove(i));
-                }
+        Iterator iterator = lines.iterator();
+        Line line = (Line)iterator.next();
+        int i = 0;
+        for(Train train : trains){
+            train.setLine(line);
+            i++;
+            if(i == trainPerLine && iterator.hasNext()){
+                line = (Line)iterator.next();
+                i = 0;
             }
-            line.setTrains(trainsForLine);
         }
     }
 
     private void move(){
-        for(Line line : lines){
-            List<Train> trains = line.getTrains();
-            List<Station> stations = line.getStations();
-            int iterations = trains.size() + trains.size();
-            for(int i = 0; i < iterations; i++) {
-                int j = i;
-                for (Train train : trains) {
-                    train.run();
-                    if(j < 0){
-                        train.stop(null);
-                    }else {
-                        train.stop(stations.get(j));
-                    }
-                    train.run();
-                    j--;
-                }
-                System.out.println("\n");
+        List<Thread> threads = new ArrayList<>();
+        for(Train train : trains){
+            Thread thread = new Thread(train);
+            threads.add(thread);
+            thread.start();
+        }
+        for(Thread t : threads){
+            try {
+                t.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+    }
+
+    private void reserveDrivers(){
+        Comparator<Driver> comparator = new Comparator<Driver>() {
+            @Override
+            public int compare(Driver d1, Driver d2) {
+                if(d1.getExperience() > d2.getExperience()){
+                    return 1;
+                }else if(d1.getExperience() < d2.getExperience()){
+                    return -1;
+                }
+                return 0;
+            }
+        };
+        reserveDrivers = new PriorityBlockingQueue<>(5, comparator);
+        if(!drivers.isEmpty()){
+            for(Driver d : drivers){
+                reserveDrivers.add(d);
+            }
+        }
+        drivers.clear();
     }
 }

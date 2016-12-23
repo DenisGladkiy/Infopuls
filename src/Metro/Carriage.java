@@ -3,7 +3,9 @@ package Metro;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -24,7 +26,7 @@ public class Carriage extends SuperClass implements Cloneable {
     @DatabaseField(canBeNull = false,useGetSet = true)
     private CarriageType type;
 
-    private Set<Passenger> passengers = new HashSet<>();
+    private List<Passenger> passengers = new ArrayList<>();
 
     private int passCounter = 0;
 
@@ -44,14 +46,14 @@ public class Carriage extends SuperClass implements Cloneable {
         }
     }
 
-    public Set<Passenger> addPassengers(Set<Passenger> p){
+    public List<Passenger> addPassengers(List<Passenger> p){
         int totalPass = passengers.size() + p.size();
         if(totalPass > sitsNumber){
             return p;
         }else{
             passengers.addAll(p);
             passCounter += p.size();
-            return new HashSet<>();
+            return new ArrayList<>();
         }
     }
 
@@ -100,11 +102,11 @@ public class Carriage extends SuperClass implements Cloneable {
         return type;
     }
 
-    public Set<Passenger> getPassengers() {
+    public List<Passenger> getPassengers() {
         return passengers;
     }
 
-    public void setPassengers(Set<Passenger> passengers) {
+    public void setPassengers(List<Passenger> passengers) {
         this.passengers = passengers;
     }
 

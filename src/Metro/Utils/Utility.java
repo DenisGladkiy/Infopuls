@@ -2,7 +2,9 @@ package Metro.Utils;
 
 import Metro.Passenger;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -10,13 +12,14 @@ import java.util.Set;
  */
 public class Utility {
 
-    public Set<Passenger> getSubsetOfPassengers(Set<Passenger> passengers, int number){
-        Set<Passenger> pass = new HashSet<>();
+    public List<Passenger> getSubsetOfPassengers(List<Passenger> passengers, int number){
+        List<Passenger> pass = new ArrayList<>();
         Passenger tempPass;
-        for(int i = 0; i < number; i++){
-            tempPass = passengers.iterator().next();
-            pass.add(tempPass);
-            passengers.remove(tempPass);
+        synchronized (passengers) {
+            for (int i = 0; i < number; i++) {
+                tempPass = passengers.remove(0);
+                pass.add(tempPass);
+            }
         }
         return pass;
     }

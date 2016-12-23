@@ -1,17 +1,19 @@
 package Metro;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Денис on 11/9/16.
  */
 public class Station extends SuperClass {
 
-    private Set<Passenger> passengers = new HashSet<>();
+    private List<Passenger> passengers = new ArrayList<>();
 
     private String name;
+
+    private boolean isBusy = false;
+
+    private boolean segmentBusy = false;
 
     public Station(){}
 
@@ -19,17 +21,33 @@ public class Station extends SuperClass {
         this.name = name;
     }
 
-    public Set<Passenger> getPassengers() {
+    public List<Passenger> getPassengers() {
         return passengers;
     }
 
-    public void setPassengers(Set<Passenger> passengers) {
+    public void setPassengers(List<Passenger> passengers) {
         this.passengers = passengers;
+    }
+
+    public void addPassenger(Passenger passenger){
+        passengers.add(passenger);
     }
 
     public String getName() {
         return name;
     }
+
+    public void setBusy(boolean busy) {
+        isBusy = busy;
+    }
+
+    public void setSegmentBusy(boolean segment){ segmentBusy = segment; }
+
+    public boolean isBusy(){
+        return isBusy;
+    }
+
+    public boolean isSegmentBusy(){ return segmentBusy; }
 
     @Override
     public String toString() {

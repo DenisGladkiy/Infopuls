@@ -10,15 +10,12 @@ import java.util.*;
  * Created by Денис on 10/1/16.
  */
 @DatabaseTable(tableName = "train")
-public class Train extends SuperClass {
+public class Train extends SuperClass implements Runnable {
 
-    int[] experience = {-2,-1,0,1,2};
+    int[] experience = {-1,0,1,2,3};
 
     @DatabaseField(generatedId = true)
     private int train_id;
-
-//    @ForeignCollectionField()
-//    private Collection<Carriage> train;
 
     @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     private Carriage carr1;
@@ -38,6 +35,7 @@ public class Train extends SuperClass {
     @DatabaseField(foreign = true, foreignAutoCreate = true, foreignAutoRefresh = true)
     private Driver driver;
 
+    private Line line;
 
     public Train(){}
 
@@ -50,52 +48,82 @@ public class Train extends SuperClass {
         //train = builder.train;
     }
 
-    public void run(){
+    @Override
+    public void run() {
+        List<Station> stations = new ArrayList<>(line.getStations());
+        Station station = stations.get(0);
+        int i = 0;
+        while(true) {
+            while(station.isSegmentBusy()){
+                trySleep(10);
+            }
+            station.setSegmentBusy(true);
+            runTrain();
+            trySleep(500);
+            station.setSegmentBusy(false);
+            while(station.isBusy()){
+                trySleep(10);
+            }
+            station.setBusy(true);
+            stopTrain(station);
+            station.setBusy(false);
+            Collections.rotate(stations, -1);
+            station = stations.get(0);
+            i++;
+            if(i == 10){
+                try {
+                    swapDrivers();
+                    i = 0;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void runTrain(){
         Random rnd = new Random();
         int exp = experience[rnd.nextInt(5)];
         int currentExp = driver.getExperience();
         driver.setExperience(currentExp + exp);
     }
 
-    public void stop(Station station){
+    public void stopTrain(Station station){
+        //if(this.getLine().getName().equals("Red"))
+        System.out.println("station  "+station.getName() + ", train " + this.getTrainId()+ " " +this.getDriver());
         Random random = new Random();
         Utility utility = new Utility();
-        Set<Passenger> carrPass = null;
+        List<Passenger> carrPass = null;
         int carrPassNumber;
-        if(station != null) {
-            Collection<Carriage> carriages = getTrain();
-            Set<Passenger> stationPassengers = station.getPassengers();
-            Set<Passenger> redundantPass = null;
-            System.out.println(station.getName() + "Station pass before = " + stationPassengers.size());
-            Set<Passenger> trainPassengers = new HashSet<>();
+        Collection<Carriage> carriages = getTrain();
+        List<Passenger> stationPassengers = station.getPassengers();
+        synchronized (stationPassengers) {
+            List<Passenger> redundantPass = null;
+            List<Passenger> trainPassengers = new ArrayList<>();
             int number = stationPassengers.size() / 5;
-            if(number == 0){
+            if (number == 0) {
                 number = 1;
             }
-            for(Carriage car : carriages){
+            for (Carriage car : carriages) {
                 carrPass = car.getPassengers();
                 carrPassNumber = carrPass.size();
-                if(carrPassNumber > 0) {
+                if (carrPassNumber > 0) {
                     trainPassengers.addAll(utility.getSubsetOfPassengers(carrPass, random.nextInt(carrPassNumber + 1)));
                 }
-                if(stationPassengers.size() > 0){
-                    if(stationPassengers.size() == 2){
+                if (stationPassengers.size() > 0) {
+                    if (stationPassengers.size() == 2) {
                         redundantPass = car.addPassengers(utility.getSubsetOfPassengers(stationPassengers, 2));
                         stationPassengers.addAll(redundantPass);
-                    }else {
+                    } else {
                         int rand = random.nextInt(number + 1);
                         redundantPass = car.addPassengers(utility.getSubsetOfPassengers(stationPassengers, rand));
                         stationPassengers.addAll(redundantPass);
                     }
-                }else{
+                } else {
                     break;
                 }
             }
-            stationPassengers.addAll(trainPassengers);
-            System.out.println("Station pass after = " + stationPassengers.size());
-            System.out.println(station.getName() + "  " + this.toString());
-        }else{
-            System.out.println("no station");
+            trainPassengers.clear();
         }
     }
 
@@ -158,6 +186,14 @@ public class Train extends SuperClass {
         return total;
     }
 
+    public Line getLine() {
+        return line;
+    }
+
+    public void setLine(Line line) {
+        this.line = line;
+    }
+
     public Carriage getCarr1() {
         return carr1;
     }
@@ -180,7 +216,7 @@ public class Train extends SuperClass {
 
     @Override
     public String toString() {
-        return "Train{" +
+        return "Train{" + line.getName() + " "+
                 "train_id=" + train_id + "\n" +
                 ", carr1=" + carr1 + "\n" +
                 ", carr2=" + carr2 + "\n" +
@@ -189,5 +225,25 @@ public class Train extends SuperClass {
                 ", carr5=" + carr5 + "\n" +
                 ", driver=" + driver +
                 '}' + "\n";
+    }
+
+    private void trySleep(int millis){
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void swapDrivers() throws InterruptedException {
+        synchronized (Metro.reserveDrivers){
+            Metro.reserveDrivers.put(getDriver());
+            Metro.reserveDrivers.notifyAll();
+            int benchSize = Metro.reserveDrivers.size();
+            while(Metro.reserveDrivers.size() == benchSize) {
+                Metro.reserveDrivers.wait();
+            }
+            setDriver(Metro.reserveDrivers.take());
+            System.out.println("res drivers " + this.getTrainId()+ "  " + Metro.reserveDrivers);
+        }
     }
 }

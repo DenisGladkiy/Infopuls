@@ -63,9 +63,9 @@ public class Reporter {
         }
         endTag("stations");
         startTag("trains");
-        for(Train t : line.getTrains()){
-            reportMetroTrain(t);
-        }
+//        for(Train t : line.getTrains()){
+//            reportMetroTrain(t);
+//        }
         endTag("trains");
         endTag("line");
     }
