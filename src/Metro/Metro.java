@@ -22,7 +22,7 @@ public class Metro {
     private List<Driver> drivers;
     public static volatile BlockingQueue<Driver> reserveDrivers;
     private List<Train> trains;
-    private volatile List<Passenger> passengers;
+    private List<Passenger> passengers;
     private List<Line> lines;
 
     public static void main(String[] args) {
@@ -75,42 +75,20 @@ public class Metro {
         return trains;
     }
 
-    public static void swapDrivers(Train train) throws InterruptedException {
-        synchronized (reserveDrivers){
-            if(reserveDrivers.isEmpty()){
-                reserveDrivers.add(train.getDriver());
-                reserveDrivers.notifyAll();
-                while(reserveDrivers.size() < 2){
-                    reserveDrivers.wait();
-                }
-                System.out.println("res driver 1 " + reserveDrivers);
-                train.setDriver(reserveDrivers.take());
-            }else {
-                reserveDrivers.add(train.getDriver());
-                reserveDrivers.notifyAll();
-                System.out.println("res driver 2 " + reserveDrivers);
-                Driver d = reserveDrivers.take();
-                train.setDriver(d);
-            }
-        }
-    }
-
     public void receivePassengers(){
-        //List<Passenger> passengersList = new ArrayList<>();
         passengers = new ArrayList<>();
         new Thread(new Runnable() {
             int i = 0;
             @Override
             public void run() {
-                while(i < 200){
+                while(true){
                     i++;
                     synchronized (passengers) {
                         passengers.add(new Passenger(i));
                         passengers.notifyAll();
                     }
-                    //System.out.println(i);
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

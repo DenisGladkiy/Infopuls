@@ -5,6 +5,7 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by Денис on 10/1/16.
@@ -89,43 +90,21 @@ public class Train extends SuperClass implements Runnable {
     }
 
     public void stopTrain(Station station){
-        //if(this.getLine().getName().equals("Red"))
-        System.out.println("station  "+station.getName() + ", train " + this.getTrainId()+ " " +this.getDriver());
-        Random random = new Random();
-        Utility utility = new Utility();
-        List<Passenger> carrPass = null;
-        int carrPassNumber;
+        System.out.println("Station before " + station);
         Collection<Carriage> carriages = getTrain();
-        List<Passenger> stationPassengers = station.getPassengers();
-        synchronized (stationPassengers) {
-            List<Passenger> redundantPass = null;
-            List<Passenger> trainPassengers = new ArrayList<>();
-            int number = stationPassengers.size() / 5;
-            if (number == 0) {
-                number = 1;
-            }
-            for (Carriage car : carriages) {
-                carrPass = car.getPassengers();
-                carrPassNumber = carrPass.size();
-                if (carrPassNumber > 0) {
-                    trainPassengers.addAll(utility.getSubsetOfPassengers(carrPass, random.nextInt(carrPassNumber + 1)));
-                }
-                if (stationPassengers.size() > 0) {
-                    if (stationPassengers.size() == 2) {
-                        redundantPass = car.addPassengers(utility.getSubsetOfPassengers(stationPassengers, 2));
-                        stationPassengers.addAll(redundantPass);
-                    } else {
-                        int rand = random.nextInt(number + 1);
-                        redundantPass = car.addPassengers(utility.getSubsetOfPassengers(stationPassengers, rand));
-                        stationPassengers.addAll(redundantPass);
-                    }
-                } else {
-                    break;
-                }
-            }
-            trainPassengers.clear();
+        final CountDownLatch finish = new CountDownLatch(carriages.size());
+        for (Carriage car : carriages) {
+            car.exchangePassengers(station, finish);
         }
+        try {
+            finish.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Train " + this);
+        System.out.println("Station after " + station);
     }
+
 
     public Collection<Carriage> getTrain() {
         List<Carriage> train = new ArrayList<>();
@@ -135,14 +114,6 @@ public class Train extends SuperClass implements Runnable {
         train.add(3, carr4);
         train.add(4, carr5);
         return train;
-    }
-
-    public void setTrain(List<Carriage> train) {
-        carr1 = train.get(0);
-        carr2 = train.get(1);
-        carr3 = train.get(2);
-        carr4 = train.get(3);
-        carr5 = train.get(4);
     }
 
     public static class Builder{

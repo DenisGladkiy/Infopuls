@@ -1,12 +1,11 @@
 package Metro;
 
+import Metro.Utils.Utility;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by Денис on 10/1/16.
@@ -68,15 +67,41 @@ public class Carriage extends SuperClass implements Cloneable {
         }
     }
 
-//    public Carriage clone() {
-//        Carriage car = null;
-//        try {
-//            car = (Carriage) super.clone();
-//        } catch (CloneNotSupportedException e) {
-//            e.printStackTrace();
-//        }
-//        return car;
-//    }
+    public void exchangePassengers(Station station, CountDownLatch finish){
+        Random random = new Random();
+        List<Passenger> exitPassengers = new ArrayList<>();
+        Utility utility = new Utility();
+        List<Passenger> stationPassengers = station.getPassengers();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int number = stationPassengers.size() / 5;
+                if (number == 0) {
+                    number = 1;
+                }
+                List<Passenger> redundantPass = null;
+                int carrPassNumber = passengers.size();
+                if (carrPassNumber > 0) {
+                    exitPassengers.addAll(utility.getSubsetOfPassengers(passengers, random.nextInt(carrPassNumber + 1)));
+                }
+                synchronized (stationPassengers) {
+                    if (stationPassengers.size() > 0) {
+                        if (stationPassengers.size() == 2) {
+                            redundantPass = addPassengers(utility.getSubsetOfPassengers(stationPassengers, 2));
+                            stationPassengers.addAll(redundantPass);
+                        } else {
+                            int rand = random.nextInt(number + 1);
+                            redundantPass = addPassengers(utility.getSubsetOfPassengers(stationPassengers, rand));
+                            stationPassengers.addAll(redundantPass);
+                        }
+                    }
+                }
+                //System.out.println("Wagon " + getId() + " passengers " + passengers.size());
+                exitPassengers.clear();
+                finish.countDown();
+            }
+        }).start();
+    }
 
     public int getId() {
         return id;
@@ -113,14 +138,6 @@ public class Carriage extends SuperClass implements Cloneable {
     public int getPassCounter() {
         return passCounter;
     }
-
-    //    public Train getTrain() {
-//        return train;
-//    }
-//
-//    public void setTrain(Train train) {
-//        this.train = train;
-//    }
 
     @Override
     public String toString() {
